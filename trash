@@ -1,0 +1,15 @@
+#dates = dbx.files_list_folder(path="{}{}".format(serverLink, endPoint)) # um objeto
+# with open("donwloads/image-test.png", "wb") as f:
+#     metadata, res = dbx.files_download(path="/Documents/favicon2_.png")
+#     f.write(res.content)
+#     dev.log('done')
+#     #print(metadata)
+
+# with open ("donwloads/test-create.jpg", "wb") as file:
+#     ...
+
+# file_from = 'upload/new_image_test.png'
+# file_to = '/Documents/{}'.format(file_from)
+
+# dbx.files_upload(open(file_from, 'rb').read(), file_to)
+# dev.log("done...")
