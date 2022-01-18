@@ -7,10 +7,10 @@ serverLink = _settings["SERVERLINK"]
 endPointDatabase = _settings["ENDPOINTDATABASE"]
 
 endPointTest = "/tests"
-link = serverLink + endPointDatabase + "/users.db"
+link = serverLink + endPointDatabase + "/.db"
 
 print(
     Server(
-        _settings["TOKEN"], "app/core/data/users/data.db", link, viewConnectorSignal = False, dowloadDb='s'
-        ).upload_allFiles("test_upload_file.txt", "{}{}/test_upload_file.txt".format(serverLink, endPointTest))
-    )
+         _settings["TOKEN"], "app/core/data/users/.db", link, viewConnectorSignal = True, dowloadDb='s'  
+    ).get_users()
+)
