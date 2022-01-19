@@ -1,8 +1,15 @@
+from dotenv import dotenv_values, load_dotenv # Importando dotenv para variavei de ambiente como o serverLink...
+_settings = (dotenv_values("./.env")) if (load_dotenv("./.env") == True) else "!token not found"
+
 import os 
 import dropbox
 import sqlite3 as sqlite
 from pathlib import Path
 from cockroach import developing_cockroach as dev
+
+serverLink = _settings["SERVERLINK"]
+endPointDatabase = _settings["ENDPOINTDATABASE"]
+link = serverLink + endPointDatabase + "/.db"
 
 class Server:
     '''Class responsible for server calls and provision of some services, such as returning user data on the server.
@@ -25,8 +32,9 @@ class Server:
         self.localHost = "./app/core/data/users/.db" # setting my recording location. (standard)
         
         if Path(r"{}".format(self.localHost)).is_file():# checking if such a file exists and returning a Boolean, True or False value and based on that making a decision.
-        
-            self.__cursor = sqlite.connect(self.localHost).cursor() # creating a cursor instance.
+            self.__newDataBaseInstance = sqlite.connect(self.localHost)
+            self.__cursor = self.__newDataBaseInstance.cursor() # creating a cursor instance.
+            self.__commit = self.__newDataBaseInstance.commit
             self.connect = True 
             if viewConnectorSignal: dev.log(name = "CONNECTED", message= "CONNECTOR RETORNANDO SINAL 1")
         
@@ -89,6 +97,11 @@ class Server:
         self.dbx.files_upload(open(whereIsTheFile, 'rb').read(), pointThePathOnTheServer)
         return "done..."   
     
-    def send(self):
-        ...
+    # Metodo para envio de messagens ao servidor. Use uma outra funcao para a recuperaçao delas, como o metododo get_users.
+    def sendMessage(self):
+        self.__cursor.execute(""" INSERT INTO Users (nameUser, sender, subject, message, recipient) VALUES ('Aloisio2', 'Antonio2', 'assuntu vazio2', 'Dizem que há alguns naquele...', 'new.email@gmail.com')""") # query
+        self.__commit() # commitando as novas alterações que estão no nivel do python ainda para o banco de dados local.
+        self.dbx.files_delete(link) # apagando o arquivo antes de atualizaló. Por motivos de retornar o erro de arquivo já existente...
+        self.upload_allFiles(self.localHost,  link) # atualizando o servidor.
+        dev.log('done to send message...')
 # ...
