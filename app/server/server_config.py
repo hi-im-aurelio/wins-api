@@ -97,11 +97,40 @@ class Server:
         self.dbx.files_upload(open(whereIsTheFile, 'rb').read(), pointThePathOnTheServer)
         return "done..."   
     
-    # Metodo para envio de messagens ao servidor. Use uma outra funcao para a recuperaçao delas, como o metododo get_users.
-    def sendMessage(self):
-        self.__cursor.execute(""" INSERT INTO Users (nameUser, sender, subject, message, recipient) VALUES ('Aloisio2', 'Antonio2', 'assuntu vazio2', 'Dizem que há alguns naquele...', 'new.email@gmail.com')""") # query
+    # Metodo responsavel por atualizar os dados da minha maquina caso hajam alterações no banco de dados remoto.  (Caso um usuário tenha feito um push no banco de dados remoto) Tente usar essa fução como uma comparação de arquivos no seu sistema.
+    def pull(self):
+        
+        # irá abrir um arquivo CMPdatas.db que é banco de dados remoto com as alteraçõs ou não.
+        with open("app/core/data/users/CMPdatas.db", "wb") as file:
+            metadata, res = self.dbx.files_download(path= self.link)
+            file.write(res.content)
+            dev.log('Comparison database download...')
+        
+        
+        # apos isso faremos uma verifição de alterações antes de altualizar, para, se enxistir realmente uma alteração no banco de dados remoto, haja então essa atualização localmente.
+        remote_changes = len(sqlite3.connect("app/core/data/users/CMPdatas.db").cursor.execute("SELECT * FROM Users"))
+        
+        # o local_changes é o lenght dos dados locail. Não verificamos as alterações feitas, mas sim o valor inteiro das alterações feitas e com isso, se for diferente da local, então haverá uma atualização dos dados locais.
+        if local_changes != remote_changes:
+            self.get_dataBase(yourLocalFolder) # Chamndo uma fução de download do banco de dados remoto: 
+        else:
+            dev.log(name = 'Pull message', message = 'Está tudo atualizado. Sem alterações encotradas')
+            
+    # Metodo para a atualização do novo banco de dados com as novas informações locails.
+    def push(self):
+        # "link" é o caminho exato do meu banco de dados remoto.
+        # "locaHost" é o caminho exato do meu banco de dados local.
+        self.upload_allFiles(self.localHost,  link) # chamando a o metodo `upload_allFile` com a função de envio de arquivos ao servidor. 
+        dev.log('banco de dados atualizado com sucesso')
+        
+    # Metodo para envio de mensagens ao servidor. Use uma outra funcao para a recuperaçao delas, como o metodo `get_users`.
+    def sendMessage(self,nameUser, sender, subject, message, recipient):
+        self.__cursor.execute("INSERT INTO Users (nameUser, sender, subject, message, recipient) VALUES ({},{}, {}, {}, {})".format(nameUser, sender, subject, message, recipient)) # query
+        
         self.__commit() # commitando as novas alterações que estão no nivel do python ainda para o banco de dados local.
         self.dbx.files_delete(link) # apagando o arquivo antes de atualizaló. Por motivos de retornar o erro de arquivo já existente...
-        self.upload_allFiles(self.localHost,  link) # atualizando o servidor.
+        
+        self.push() # Fazendo commit no servidor remoto.
+        
         dev.log('done to send message...')
 # ...
