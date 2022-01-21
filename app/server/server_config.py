@@ -1,12 +1,15 @@
 from dotenv import dotenv_values, load_dotenv # Importando dotenv para variavei de ambiente como o serverLink...
 _settings = (dotenv_values("./.env")) if (load_dotenv("./.env") == True) else "!token not found"
 
+import sys
+sys.path.insert(0,"./app/server/")
+
 import os 
 import dropbox
 import sqlite3 as sqlite
 from pathlib import Path
 from cockroach import developing_cockroach as dev
-from local_changes_value import local_changes
+import local_changes_value
 
 serverLink = _settings["SERVERLINK"]
 endPointDatabase = _settings["ENDPOINTDATABASE"]
@@ -109,11 +112,11 @@ class Server:
         
         
         # apos isso faremos uma verifição de alterações antes de altualizar, para, se enxistir realmente uma alteração no banco de dados remoto, haja então essa atualização localmente.
-        remote_changes = len(sqlite3.connect("app/core/data/users/CMPdatas.db").cursor.execute("SELECT * FROM Users"))
+        remote_changes = len(sqlite.connect("app/core/data/users/CMPdatas.db").cursor().execute("SELECT * FROM Users").fetchall())
         
         # o local_changes é o lenght dos dados locail. Não verificamos as alterações feitas, mas sim o valor inteiro das alterações feitas e com isso, se for diferente da local, então haverá uma atualização dos dados locais.
-        if local_changes != remote_changes:
-            self.get_dataBase(yourLocalFolder) # Chamndo uma fução de download do banco de dados remoto: 
+        if local_changes_value.local_changes != remote_changes:
+            self.get_dataBase(self.yourLocalFolder) # Chamndo uma fução de download do banco de dados remoto: 
         else:
             dev.log(name = 'Pull message', message = 'Está tudo atualizado. Sem alterações encotradas')
             
