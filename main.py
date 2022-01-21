@@ -11,6 +11,6 @@ link = serverLink + endPointDatabase + "/.db"
 
 print(
     Server(
-         _settings["TOKEN"], "app/core/data/users/.db", link, viewConnectorSignal = True, dowloadDb='s'  
-    ).sendMessage()
+         _settings["TOKEN"], "app/core/data/users/.db", link, viewConnectorSignal = True, dowloadDb='s'
+    ).get_users()
 )
