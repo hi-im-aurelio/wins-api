@@ -6,6 +6,7 @@ import dropbox
 import sqlite3 as sqlite
 from pathlib import Path
 from cockroach import developing_cockroach as dev
+from local_changes_value import local_changes
 
 serverLink = _settings["SERVERLINK"]
 endPointDatabase = _settings["ENDPOINTDATABASE"]
@@ -95,13 +96,15 @@ class Server:
     #method responsible for uploading some file to the server.
     def upload_allFiles(self, whereIsTheFile, pointThePathOnTheServer):
         self.dbx.files_upload(open(whereIsTheFile, 'rb').read(), pointThePathOnTheServer)
-        return "done..."
+        dev.log("done... to upload files")
 
     # Metodo para envio de messagens ao servidor. Use uma outra funcao para a recuperaçao delas, como o metododo get_users.
     def sendMessage(self):
         self.__cursor.execute(""" INSERT INTO Users (nameUser, sender, subject, message, recipient) VALUES ('Aloisio2', 'Antonio2', 'assuntu vazio2', 'Dizem que há alguns naquele...', 'new.email@gmail.com')""") # query
         self.__commit() # commitando as novas alterações que estão no nivel do python ainda para o banco de dados local.
         self.dbx.files_delete(link) # apagando o arquivo antes de atualizaló. Por motivos de retornar o erro de arquivo já existente...
-        self.upload_allFiles(self.localHost,  link) # atualizando o servidor.
+
+        self.push() # Fazendo commit no servidor remoto.
+
         dev.log('done to send message...')
 # ...
